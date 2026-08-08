@@ -37,7 +37,7 @@ NSFW_THRESHOLDS = {
 
 #── Start ───────────────────────────────────────────────────────────────────────
 START_ANIMATIONS = [
-   "https://gxtusqitetsemwjdtvvq.supabase.co/storage/v1/object/public/photos/1786186762078-0ie20e.jpg",
+   "https://files.catbox.moe/90xzlr.jpg",
 ]
 
 # ── Limits ────────────────────────────────────────────────────────────────────
