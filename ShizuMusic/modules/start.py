@@ -65,7 +65,7 @@ async def start_handler(_, message: Message) -> None:
             "<b>│❍ ᴄʟɪᴄᴋ ʜᴇʟᴘ ғᴏʀ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs.</b>\n"
             "<b>├────────────────────▣</b>\n"
             f"<b>│❍ ᴘᴏᴡᴇʀᴇᴅ ʙʏ » "
-            f"<a href='https://t.me/PBXCHATS'>sʜɪᴢᴜ-ᴍᴜsɪᴄ™</a></b>\n"
+            f"<a href='https://t.me/ishuXchat'>𝑰𝒔𝒉𝒖 𝑴𝒖𝒔𝒊𝒄™</a></b>\n"
             "<b>╰────────────────────▣</b>"
         )
         kb = InlineKeyboardMarkup([
@@ -219,7 +219,7 @@ async def help_handler(_, message: Message) -> None:
             "<b>│📜 ᴄʜᴏᴏsᴇ ᴀ ᴄᴀᴛᴇɢᴏʀʏ :</b>\n"
             "<b>├────────────────────▣</b>\n"
             f"<b>│❍ ᴘᴏᴡᴇʀᴇᴅ ʙʏ » "
-            f"<a href='https://t.me/PBXCHATS'>sʜɪᴢᴜ-ᴍᴜsɪᴄ™</a></b>\n"
+            f"<a href='https://t.me/ishuXchat'>𝑰𝒔𝒉𝒖𝑴𝒖𝒔𝒊𝒄™</a></b>\n"
             "<b>╰────────────────────▣</b>"
         ),
         parse_mode=ParseMode.HTML,
