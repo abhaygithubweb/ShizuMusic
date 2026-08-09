@@ -11,7 +11,7 @@
 #  Import from there directly, or use this file — both work.
 # --------------------------------------------------------------------------------
 
-from 𝑰𝒔𝒉𝒖 𝒎𝒖𝒔𝒊𝒄.utils.db import (
+from ShizuMusic.utils.db import (
     start_mongo,
     get_db,
     is_connected,
