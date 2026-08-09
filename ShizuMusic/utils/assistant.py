@@ -18,7 +18,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.errors import RPCError, UserAlreadyParticipant
 from pyrogram.types import Message
 
-from IshuMusic import assistant, bot
+from ShizuMusic import assistant, bot
 
 
 async def is_assistant_in(chat_id: int):
