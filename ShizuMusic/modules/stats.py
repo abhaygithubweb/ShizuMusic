@@ -75,7 +75,7 @@ async def stats_cmd(_, message: Message) -> None:
     if is_connected():
         try:
             client   = get_mongo_client()
-            db_stats = client["ShizuMusic"].command("dbstats")
+            db_stats = client["IshuMusic"].command("dbstats")
             data_kb  = db_stats.get("dataSize",    0) / 1024
             stor_kb  = db_stats.get("storageSize", 0) / 1024
             col_cnt  = db_stats.get("collections", 0)
@@ -98,7 +98,7 @@ async def stats_cmd(_, message: Message) -> None:
 
     # ── Final message ─────────────────────────────────────────────────────────
     text = (
-        "<b>━━━━━━━━ ShizuMusic Stats ━━━━━━━━</b>\n\n"
+        "<b>━━━━━━━━ IshuMusic Stats ━━━━━━━━</b>\n\n"
 
         "<b>❍ System</b>\n"
         f"<b>  OS        :</b> <code>{os_name} {os_release}</code>\n"

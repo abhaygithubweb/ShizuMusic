@@ -158,7 +158,7 @@ screen -r shizu
 
 | Variable | Default | Description |
 |---|---|---|
-| `BOT_NAME` | `Shizu Music` | Name shown in bot messages |
+| `BOT_NAME` | `Ishu Music` | Name shown in bot messages |
 | `BOT_LINK` | `https://t.me/IshuMusicBot` | Bot's Telegram link |
 | `UPDATES_CHANNEL` | `https://t.me/Ishu_UPDATE` | Updates channel link |
 | `SUPPORT_GROUP` | `https://t.me/IshuCHATS` | Support group link |

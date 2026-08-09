@@ -1,0 +1,9 @@
+# Query: Shizu Music
+# ContextLines: 1
+
+1 result - 1 file
+
+README.md:
+  160  |---|---|---|
+  161: | `BOT_NAME` | `Ishu Music` | Name shown in bot messages |
+  162  | `BOT_LINK` | `https://t.me/IshuMusicBot` | Bot's Telegram link |

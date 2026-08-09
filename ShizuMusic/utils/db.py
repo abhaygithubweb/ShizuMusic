@@ -31,7 +31,7 @@ def start_mongo() -> bool:
     try:
         _client = MongoClient(config.MONGO_DB_URL, serverSelectionTimeoutMS=5000)
         _client.admin.command("ping")
-        _db = _client["ShizuMusic"]
+        _db = _client["IshuMusic"]
         logger.info("✅ MongoDB connected successfully.")
         return True
 
