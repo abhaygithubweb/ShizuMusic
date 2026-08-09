@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------------
-#  ShizuMusic © 2026
-#  Developed by Bad Munda ❤️
+#  𝑰𝒔𝒉𝒖 𝒎𝒖𝒔𝒊𝒄 © 2026
+#  Developed by 𝐀ʙʜɪᴍᴀɴʏᴜ ❤️
 #
 #  Unauthorized copying, editing, re-uploading or removing credits
 #  from this source code is strictly prohibited.
@@ -59,10 +59,10 @@ async def repo_cmd(_, message: Message) -> None:
 
     await message.reply(
         "<b>╭────────────────────▣</b>\n"
-        "<b>│ 🍡 sʜɪᴢᴜᴍᴜsɪᴄ sᴏᴜʀᴄᴇ</b>\n"
+        "<b>│ 🍡 𝑰𝒔𝒉𝒖 𝒎𝒖𝒔𝒊𝒄 sᴏᴜʀᴄᴇ</b>\n"
         "<b>├────────────────────▣</b>\n"
         "<b>│ ❍ ᴏᴘᴇɴ sᴏᴜʀᴄᴇ ᴍᴜsɪᴄ ʙᴏᴛ</b>\n"
-        "<b>│ ❍ ᴅᴇᴠᴇʟᴏᴘᴇᴅ ʙʏ ʙᴀᴅ ᴍᴜɴᴅᴀ ❤️</b>\n"
+        "<b>│ ❍ ᴅᴇᴠᴇʟᴏᴘᴇᴅ ʙʏ 𝐀ʙʜɪᴍᴀɴʏᴜ ❤️</b>\n"
         "<b>├────────────────────▣</b>\n"
         "<b>│ ⚡ ʜᴏsᴛɪɴɢ sᴜᴘᴘᴏʀᴛ</b>\n"
         "<b>│</b>\n"
