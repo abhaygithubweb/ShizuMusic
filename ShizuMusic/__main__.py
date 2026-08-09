@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     # 1. MongoDB
     try:
-        from IshuMusic.utils.db import start_mongo
+        from ShizuMusic.utils.db import start_mongo
         ok = start_mongo()
         if ok:
             LOGGER.info("MongoDB ready.")
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     # 8. Block middleware — MUST run before plugins load
     try:
-        from IshuMusic.utils.decorators import register_block_middleware
+        from ShizuMusic.utils.decorators import register_block_middleware
         register_block_middleware()
         LOGGER.info("Block middleware registered")
     except Exception as e:
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     # 9. Load modules
     for mod in ALL_MODULES:
         try:
-            importlib.import_module(f"IshuMusic.modules.{mod}")
+            importlib.import_module(f"ShizuMusic.modules.{mod}")
             LOGGER.info(f"Loaded module: {mod}")
         except Exception as e:
             LOGGER.error(f"Failed to load module {mod}: {e}")
