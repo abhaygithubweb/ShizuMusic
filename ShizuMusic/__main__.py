@@ -168,7 +168,7 @@ if __name__ == "__main__":
 
     # 10. Stream-end handler
     try:
-        import IshuMusic.core.call  # noqa: F401
+        import ShizuMusic.core.call  # noqa: F401
     except Exception as e:
         LOGGER.error(f"Failed to load call handler: {e}")
 
@@ -177,7 +177,7 @@ if __name__ == "__main__":
     loop.run_until_complete(_notify_owner(me, ASSISTANT_USERNAME))
 
     # 12. Watchdog
-    from IshuMusic.core.watcher import watchdog
+    from ShizuMusic.core.watcher import watchdog
     loop.create_task(watchdog())
     LOGGER.info("Watchdog started")
 
