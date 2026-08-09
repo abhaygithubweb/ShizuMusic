@@ -1,17 +1,17 @@
 # --------------------------------------------------------------------------------
-#  ShizuMusic © 2026
-#  Developed by Bad Munda ❤️
+#  𝑰𝒔𝒉𝒖 𝒎𝒖𝒔𝒊𝒄 © 2026
+#  Developed by 𝐀ʙʜɪᴍᴀɴʏᴜ 🚩 ❤️
 #
 #  Unauthorized copying, editing, re-uploading or removing credits
 #  from this source code is strictly prohibited.
 # --------------------------------------------------------------------------------
 #
 #  This file is a compatibility shim.
-#  All database logic lives in ShizuMusic/utils/db.py
+#  All database logic lives in 𝑰𝒔𝒉𝒖 𝒎𝒖𝒔𝒊𝒄/utils/db.py
 #  Import from there directly, or use this file — both work.
 # --------------------------------------------------------------------------------
 
-from ShizuMusic.utils.db import (
+from 𝑰𝒔𝒉𝒖 𝒎𝒖𝒔𝒊𝒄.utils.db import (
     start_mongo,
     get_db,
     is_connected,
