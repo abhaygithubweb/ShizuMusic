@@ -20,8 +20,8 @@ from pyrogram import idle
 from pyrogram.types import BotCommand
 
 import config
-from IshuMusic import LOGGER, assistant, bot, call_py
-from IshuMusic.modules import ALL_MODULES
+from ShizuMusic import LOGGER, assistant, bot, call_py
+from ShizuMusic.modules import ALL_MODULES
 
 ASSISTANT_USERNAME: str = ""
 
