@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------------
-#  ShizuMusic © 2026
-#  Developed by Bad Munda ❤️
+#  𝑰𝒔𝒉𝒖 𝒎𝒖𝒔𝒊𝒄 © 2026
+#  Developed by 𝐀ʙʜɪᴍᴀɴʏᴜ 🚩
 #
 #  Unauthorized copying, editing, re-uploading or removing credits
 #  from this source code is strictly prohibited.
@@ -69,7 +69,7 @@ async def ping_cmd(client, message: Message) -> None:
         f"<b>❍ ᴄᴘᴜ :</b> <code>{cpu}%</code>\n"
         f"<b>❍ ᴅɪsᴋ :</b> <code>{disk_str}</code>\n"
         f"<b>❍ ᴘʏᴛɢᴄ :</b> <code>{pytg}ms</code>\n\n"
-        f"<b>❍ 𝖡ʏ » <a href=\"{config.SUPPORT_GROUP}\">sʜɪᴢᴜ-ᴍᴜsɪᴄ™</a></b>"
+        f"<b>❍ 𝖡ʏ » <a href=\"{config.SUPPORT_GROUP}\">𝑰𝒔𝒉𝒖 𝒎𝒖𝒔𝒊𝒄™</a></b>"
     )
 
     await message.reply_photo(
