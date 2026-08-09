@@ -439,7 +439,7 @@ async def _go_back(cbq: CallbackQuery) -> None:
         "<b>│❍ ᴀ ғᴀsᴛ & ᴘᴏᴡᴇʀғᴜʟ ᴛᴇʟᴇɢʀᴀᴍ ᴍᴜsɪᴄ ʙᴏᴛ.</b>\n"
         "<b>├────────────────────▣</b>\n"
         f"<b>│❍ 𝖯ᴏᴡᴇʀᴇᴅ 𝖡ʏ » "
-        f"<a href='https://t.me/PBXCHATS'>sʜɪᴢᴜ-ᴍᴜsɪᴄ™</a></b>\n"
+        f"<a href='https://t.me/ishuXCHAT'>𝑰𝒔𝒉𝒖 𝒎𝒖𝒔𝒊𝒄™</a></b>\n"
         "<b>╰────────────────────▣</b>"
     )
     kb = InlineKeyboardMarkup([
