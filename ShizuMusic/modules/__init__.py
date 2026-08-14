@@ -16,6 +16,7 @@ ALL_MODULES = [
     "pause",
     "resume",
     "skip",
+    "tagger",
     "stats",
     "stop",
     "misc",
