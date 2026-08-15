@@ -25,10 +25,10 @@ logger = logging.getLogger(__name__)
 
 # ── API config ────────────────────────────────────────────────────────────────
 SHRUTI_API_URL        = os.environ.get("SHRUTI_API_URL", "https://api.shrutibots.site")
-SHRUTI_API_KEY        = os.environ.get("SHRUTI_API_KEY", "ShrutiBotsZWU3vIU63uUHoUPgOw2m")  # Get from @SHRUTIAPIBOT on Telegram
+SHRUTI_API_KEY        = os.environ.get("SHRUTI_API_KEY", "ShrutiBotsZWU3vIU63uUHoUPgOw2m")
 DOWNLOAD_DIR          = "downloads"
-SHRUTI_TOKEN_TIMEOUT  = 10    # seconds — fetch download token
-SHRUTI_STREAM_TIMEOUT = 900   # 15 min  — stream long songs
+SHRUTI_TOKEN_TIMEOUT  = 10
+SHRUTI_STREAM_TIMEOUT = 900
 
 _file_cache: dict[str, str] = {}
 
@@ -60,12 +60,77 @@ def time_to_seconds(time) -> int:
     return sum(int(x) * 60 ** i for i, x in enumerate(reversed(stringt.split(":"))))
 
 
+async def _native_ytdlp_download(video_id: str, is_video: bool = False) -> str:
+    """High-speed native fallback extractor with Android/iOS client rotation."""
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+    ext = "mp4" if is_video else "mp3"
+    file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.{ext}")
+
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        return file_path
+
+    # First attempt: Piped / Invidious CDN Direct Stream
+    piped_instances = [
+        "https://pipedapi.kavin.rocks",
+        "https://api.piped.privacydev.net",
+        "https://pipedapi.leptons.xyz",
+    ]
+    for api in piped_instances:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(f"{api}/streams/{video_id}", timeout=aiohttp.ClientTimeout(total=6)) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        streams = data.get("videoStreams" if is_video else "audioStreams", [])
+                        if streams:
+                            target_url = streams[0].get("url")
+                            async with session.get(target_url, timeout=aiohttp.ClientTimeout(total=300)) as dl:
+                                if dl.status == 200:
+                                    async with aiofiles.open(file_path, "wb") as f:
+                                        async for chunk in dl.content.iter_chunked(131072):
+                                            await f.write(chunk)
+                                    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                                        return file_path
+        except Exception:
+            continue
+
+    # Second attempt: Direct yt-dlp Android client
+    ydl_opts = {
+        "format": "bestvideo[height<=720]+bestaudio/best[height<=720]" if is_video else "bestaudio/best",
+        "outtmpl": os.path.join(DOWNLOAD_DIR, f"{video_id}.%(ext)s"),
+        "quiet": True,
+        "no_warnings": True,
+        "nocheckcertificate": True,
+        "extractor_args": {"youtube": {"player_client": ["android", "ios"]}},
+    }
+    if not is_video:
+        ydl_opts["postprocessors"] = [{
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "mp3",
+            "preferredquality": "192",
+        }]
+
+    def _ytdlp():
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
+
+    try:
+        await asyncio.to_thread(_ytdlp)
+        for f in os.listdir(DOWNLOAD_DIR):
+            if f.startswith(video_id):
+                return os.path.join(DOWNLOAD_DIR, f)
+    except Exception as e:
+        logger.error(f"[Fallback DL Error] {e}")
+
+    return None
+
+
 # ═════════════════════════════════════════════════════════════════════════════
-# DOWNLOAD HELPERS (New API — single-step direct stream)
+# DOWNLOAD HELPERS (API + Multi-Node Fallback)
 # ═════════════════════════════════════════════════════════════════════════════
 
 async def download_song(link: str) -> str:
-    """Download audio via Shruti API. Returns local file path or None on failure."""
+    """Download audio via API with automatic fallback. Returns file path or None."""
     video_id = _extract_video_id(link)
     if not video_id or len(video_id) < 3:
         return None
@@ -73,10 +138,10 @@ async def download_song(link: str) -> str:
     os.makedirs(DOWNLOAD_DIR, exist_ok=True)
     file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.mp3")
 
-    # Disk cache
     if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
         return file_path
 
+    # Try Primary Shruti API
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
@@ -84,25 +149,23 @@ async def download_song(link: str) -> str:
                 params={"url": video_id, "type": "audio", "api_key": SHRUTI_API_KEY},
                 timeout=aiohttp.ClientTimeout(total=SHRUTI_STREAM_TIMEOUT),
             ) as resp:
-                if resp.status != 200:
-                    logger.warning(f"[shruti] Audio download failed: HTTP {resp.status}")
-                    return None
-                async with aiofiles.open(file_path, "wb") as f:
-                    async for chunk in resp.content.iter_chunked(131072):
-                        await f.write(chunk)
-
-        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-            return file_path
-        return None
-
+                if resp.status == 200:
+                    async with aiofiles.open(file_path, "wb") as f:
+                        async for chunk in resp.content.iter_chunked(131072):
+                            await f.write(chunk)
+                    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                        return file_path
+                else:
+                    logger.warning(f"[shruti] Audio API returned {resp.status}, triggering fallback...")
     except Exception as e:
-        logger.error(f"[shruti] download_song error: {e}")
-        _cleanup(file_path)
-        return None
+        logger.warning(f"[shruti] Audio API error: {e}")
+
+    # Fallback to direct streamer
+    return await _native_ytdlp_download(video_id, is_video=False)
 
 
 async def download_video(link: str) -> str:
-    """Download video via Shruti API. Returns local file path or None on failure."""
+    """Download video via API with automatic fallback. Returns file path or None."""
     video_id = _extract_video_id(link)
     if not video_id or len(video_id) < 3:
         return None
@@ -110,10 +173,10 @@ async def download_video(link: str) -> str:
     os.makedirs(DOWNLOAD_DIR, exist_ok=True)
     file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.mp4")
 
-    # Disk cache
     if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
         return file_path
 
+    # Try Primary Shruti API
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
@@ -121,54 +184,51 @@ async def download_video(link: str) -> str:
                 params={"url": video_id, "type": "video", "api_key": SHRUTI_API_KEY},
                 timeout=aiohttp.ClientTimeout(total=SHRUTI_STREAM_TIMEOUT),
             ) as resp:
-                if resp.status != 200:
-                    logger.warning(f"[shruti] Video download failed: HTTP {resp.status}")
-                    return None
-                async with aiofiles.open(file_path, "wb") as f:
-                    async for chunk in resp.content.iter_chunked(131072):
-                        await f.write(chunk)
-
-        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-            return file_path
-        return None
-
+                if resp.status == 200:
+                    async with aiofiles.open(file_path, "wb") as f:
+                        async for chunk in resp.content.iter_chunked(131072):
+                            await f.write(chunk)
+                    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                        return file_path
+                else:
+                    logger.warning(f"[shruti] Video API returned {resp.status}, triggering fallback...")
     except Exception as e:
-        logger.error(f"[shruti] download_video error: {e}")
-        _cleanup(file_path)
-        return None
+        logger.warning(f"[shruti] Video API error: {e}")
+
+    # Fallback to direct streamer
+    return await _native_ytdlp_download(video_id, is_video=True)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# PUBLIC — STREAM RESOLVER (backward-compatible)
+# PUBLIC — STREAM RESOLVER (Supports Audio & Video)
 # ═════════════════════════════════════════════════════════════════════════════
 
-async def resolve_stream(url: str) -> str:
-    """Resolve a YouTube URL or video ID to a local audio file path."""
-    # Already a local file (e.g. Telegram audio download)
+async def resolve_stream(url: str, video: bool = False) -> str:
+    """Resolve a YouTube URL or video ID to a local audio/video file path."""
     if os.path.exists(url) and os.path.isfile(url):
         return url
 
-    # In-memory cache
-    if url in _file_cache and os.path.exists(_file_cache[url]):
-        logger.info("[shruti] Cache hit")
-        return _file_cache[url]
+    cache_key = f"{url}_video" if video else url
+    if cache_key in _file_cache and os.path.exists(_file_cache[cache_key]):
+        logger.info("[Stream] Cache hit")
+        return _file_cache[cache_key]
 
-    video_id  = _extract_video_id(url)
-    file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.mp3")
+    video_id = _extract_video_id(url)
+    ext = "mp4" if video else "mp3"
+    file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.{ext}")
 
-    # Disk cache
     if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-        _file_cache[url] = file_path
+        _file_cache[cache_key] = file_path
         return file_path
 
-    logger.info(f"[shruti] Downloading: {video_id}")
-    downloaded = await download_song(url)
+    logger.info(f"[Stream] Fetching {'video' if video else 'audio'}: {video_id}")
+    downloaded = await download_video(url) if video else await download_song(url)
     if downloaded:
-        _file_cache[url] = downloaded
-        logger.info(f"[shruti] Done — {os.path.getsize(downloaded) // 1024} KB")
+        _file_cache[cache_key] = downloaded
+        logger.info(f"[Stream] Done — {os.path.getsize(downloaded) // 1024} KB")
         return downloaded
 
-    raise Exception("Shruti API download failed. Please try again.")
+    raise Exception("ᴅᴏᴡɴʟᴏᴀᴅ ғᴀɪʟᴇᴅ. ᴩʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ.")
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -188,6 +248,7 @@ async def search_yt(query: str):
         items = []
         for v in vids:
             raw = v.get("duration", {})
+            secs = 0
             if isinstance(raw, dict):
                 try:
                     secs = int(raw.get("secondsText", 0))
@@ -232,7 +293,7 @@ async def search_yt(query: str):
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# PUBLIC — YouTubeAPI CLASS (full-featured, from Youtube5 style)
+# PUBLIC — YouTubeAPI CLASS
 # ═════════════════════════════════════════════════════════════════════════════
 
 class YouTubeAPI:
@@ -243,15 +304,11 @@ class YouTubeAPI:
         self.listbase = "https://youtube.com/playlist?list="
         self.reg      = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
-
     def _build_link(self, link: str, videoid) -> str:
         return (self.base + link) if videoid else link
 
     def _strip_extra(self, link: str) -> str:
         return link.split("&")[0] if "&" in link else link
-
-    # ── Public methods ────────────────────────────────────────────────────────
 
     async def exists(self, link: str, videoid: Union[bool, str] = None) -> bool:
         if videoid:
