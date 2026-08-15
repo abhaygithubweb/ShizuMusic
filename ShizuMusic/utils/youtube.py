@@ -61,7 +61,7 @@ def time_to_seconds(time) -> int:
 
 
 async def _native_ytdlp_download(video_id: str, is_video: bool = False) -> str:
-    """High-speed native fallback extractor with Android/iOS client rotation."""
+    """High-speed native fallback extractor with cookies and mobile client bypass."""
     os.makedirs(DOWNLOAD_DIR, exist_ok=True)
     ext = "mp4" if is_video else "mp3"
     file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.{ext}")
@@ -94,15 +94,26 @@ async def _native_ytdlp_download(video_id: str, is_video: bool = False) -> str:
         except Exception:
             continue
 
-    # Second attempt: Direct yt-dlp Android client
+    # Second attempt: Direct yt-dlp with cookies & client rotation
     ydl_opts = {
         "format": "bestvideo[height<=720]+bestaudio/best[height<=720]" if is_video else "bestaudio/best",
         "outtmpl": os.path.join(DOWNLOAD_DIR, f"{video_id}.%(ext)s"),
         "quiet": True,
         "no_warnings": True,
         "nocheckcertificate": True,
-        "extractor_args": {"youtube": {"player_client": ["android", "ios"]}},
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "ios", "mweb"],
+                "player_skip": ["webpage", "configs"]
+            }
+        },
     }
+
+    # Agar cookies.txt file exist karegi toh auto-detect karega
+    cookie_path = "cookies.txt"
+    if os.path.exists(cookie_path):
+        ydl_opts["cookiefile"] = cookie_path
+
     if not is_video:
         ydl_opts["postprocessors"] = [{
             "key": "FFmpegExtractAudio",
